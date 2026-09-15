@@ -49,7 +49,7 @@ export function convertClashProxyToUrl(proxy) {
 
         if (type === 'ssr' || type === 'shadowsocksr') {
             const password = base64UrlSafeEncode(proxy.password);
-            const params = `obfs=${proxy.obfs || 'plain'}&obfsparam=${base64UrlSafeEncode(proxy['obfs-param'] || '')}&protocol=${proxy.protocol || 'origin'}&protoparam=${base64UrlSafeEncode(proxy['protocol-param'] || '')}&remarks=${base64UrlSafeEncode(name)}`;
+            const params = `obfs=${proxy.obfs || 'plain'}&obfsparam=${base64UrlSafeEncode(proxy['obfs-param'] || '')}&protocol=${proxy.protocol || 'origin'}&protoparam=${base64UrlSafeEncode(proxy['pro[...]
             const ssrBody = `${server}:${port}:${proxy.protocol || 'origin'}:${proxy.cipher || 'none'}:${proxy.obfs || 'plain'}:${password}/?${params}`;
             return `ssr://${base64UrlSafeEncode(ssrBody)}`;
         }
@@ -172,6 +172,8 @@ export function convertClashProxyToUrl(proxy) {
                     params.push(`sid=${encodeURIComponent(realityOpts['short-id'])}`);
                 if (realityOpts['spider-x'])
                     params.push(`spx=${encodeURIComponent(realityOpts['spider-x'])}`);
+                if (realityOpts['support-x25519mlkem768'] !== undefined)
+                    params.push(`supportMLKEM768=${realityOpts['support-x25519mlkem768'] ? '1' : '0'}`);
             } else if (proxy.tls) {
                 params.push('security=tls');
             }
