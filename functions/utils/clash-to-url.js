@@ -172,8 +172,6 @@ export function convertClashProxyToUrl(proxy) {
                     params.push(`sid=${encodeURIComponent(realityOpts['short-id'])}`);
                 if (realityOpts['spider-x'])
                     params.push(`spx=${encodeURIComponent(realityOpts['spider-x'])}`);
-                if (realityOpts['support-x25519mlkem768'])
-                    params.push('supportMLKEM768=true');
             } else if (proxy.tls) {
                 params.push('security=tls');
             }

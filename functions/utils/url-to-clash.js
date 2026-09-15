@@ -264,6 +264,11 @@ function parseVlessUrl(url) {
             if (params.get('pbk')) realityOpts['public-key'] = params.get('pbk');
             if (params.get('sid')) realityOpts['short-id'] = params.get('sid');
             if (params.get('spx')) realityOpts['spider-x'] = params.get('spx');
+            const supportMlkem =
+                params.get('supportMLKEM768') || params.get('support-x25519mlkem768');
+            if (supportMlkem === 'true' || supportMlkem === '1') {
+                realityOpts['support-x25519mlkem768'] = true;
+            }
             if (Object.keys(realityOpts).length > 0) {
                 proxy['reality-opts'] = realityOpts;
             }
