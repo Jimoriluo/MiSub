@@ -5,6 +5,9 @@ on:
     # 每天北京时间 08:00（UTC 00:00）检查一次
     - cron: '0 0 * * *'
   workflow_dispatch:  # 可在 Actions 页面手动触发
+  push:
+    # fork 被硬重置到上游后，任意一次 push 都会立即触发自修复
+    branches: [main]
 
 permissions:
   contents: write  # 允许 push 回 fork
@@ -34,6 +37,46 @@ jobs:
           else
             echo "🔁 检测到上游更新，开始同步..."
             git merge upstream/main --no-edit
+          fi
+
+      - name: 确保 REALITY 强制 support-x25519mlkem768 存在
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+
+          path = Path("functions/utils/url-to-clash.js")
+          source = path.read_text(encoding="utf-8")
+
+          if "support-x25519mlkem768" in source:
+              print("[ok] support-x25519mlkem768 already present")
+              sys.exit(0)
+
+          anchor = "if (params.get('spx')) realityOpts['spider-x'] = params.get('spx');"
+          hits = source.count(anchor)
+          if hits != 1:
+              print(f"[error] anchor matched {hits} times (expected 1), manual fix required")
+              sys.exit(1)
+
+          inserted = (
+              anchor
+              + "\n            // [MiSub] 强制开启 ML-KEM：Xray-core v26.7.11+ 的 REALITY 节点需要该字段"
+              + "\n            realityOpts['support-x25519mlkem768'] = true;"
+          )
+          path.write_text(source.replace(anchor, inserted, 1), encoding="utf-8", newline="\n")
+          print("[patched] realityOpts['support-x25519mlkem768'] = true")
+          PY
+
+      - name: 语法校验
+        run: node --check functions/utils/url-to-clash.js
+
+      - name: 提交并推送
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add functions/utils/url-to-clash.js
+            git commit -m "fix(reality): 上游同步后恢复强制 support-x25519mlkem768"
             git push origin main
             echo "✅ 已推送，Cloudflare Pages 将自动重新构建"
+          else
+            echo "✅ 无需推送"
           fi

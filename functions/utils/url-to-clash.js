@@ -266,7 +266,9 @@ function parseVlessUrl(url) {
             if (params.get('spx')) realityOpts['spider-x'] = params.get('spx');
             // [MiSub] 强制开启 ML-KEM：Xray-core v26.7.11+ 的 REALITY 节点需要该字段
             realityOpts['support-x25519mlkem768'] = true;
-            proxy['reality-opts'] = realityOpts;
+            if (Object.keys(realityOpts).length > 0) {
+                proxy['reality-opts'] = realityOpts;
+            }
         } else if (security === 'tls') {
             proxy.tls = true;
         }
